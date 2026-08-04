@@ -1,0 +1,1197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Student Service Hub - Get your academic work formatted, designed, done. Assignments, Notebooks, PPT, Word, PDF.">
+<meta name="keywords" content="student service, assignment help, notebook, PPT, Word, PDF, Bangladesh, academic">
+<title>Student Service Hub ⚡</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Firebase SDK -->
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import { getFirestore, collection, getDocs, addDoc, updateDoc, deleteDoc, doc, onSnapshot, orderBy, query } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyDxquugw_H3C8j3SyPf7xmnSdfKoAIBFHs",
+    authDomain: "student-service-hub-cbac5.firebaseapp.com",
+    projectId: "student-service-hub-cbac5",
+    storageBucket: "student-service-hub-cbac5.firebasestorage.app",
+    messagingSenderId: "874121887524",
+    appId: "1:874121887524:web:6cb3d03f36a00f53943db1",
+    measurementId: "G-SS6QGQ5QKG"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+  const auth = getAuth(app);
+
+  window._db = db;
+  window._auth = auth;
+  window._firebase = { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, onSnapshot, orderBy, query, signInWithEmailAndPassword, signOut, onAuthStateChanged };
+
+  // Load services on start
+  window.addEventListener('DOMContentLoaded', () => {
+    window.initFirebase();
+  });
+</script>
+
+<style>
+:root {
+  --bg: #0a0a0f;
+  --bg2: #111118;
+  --card: #16161f;
+  --card2: #1c1c28;
+  --border: rgba(255,255,255,0.08);
+  --border2: rgba(255,255,255,0.14);
+  --green: #00e676;
+  --green2: #00c853;
+  --pink: #ff4d8d;
+  --pink2: #e91e8c;
+  --blue: #448aff;
+  --blue2: #2979ff;
+  --purple: #c050ff;
+  --white: #ffffff;
+  --gray: rgba(255,255,255,0.55);
+  --gray2: rgba(255,255,255,0.35);
+  --text: rgba(255,255,255,0.9);
+  --grad: linear-gradient(135deg, var(--green) 0%, var(--blue) 50%, var(--pink) 100%);
+  --grad2: linear-gradient(135deg, #00e676, #448aff);
+  --grad3: linear-gradient(135deg, #448aff, #ff4d8d);
+  --shadow-green: 0 0 40px rgba(0,230,118,0.15);
+  --shadow-pink: 0 0 40px rgba(255,77,141,0.15);
+  --shadow-card: 0 8px 40px rgba(0,0,0,0.4);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+body { background:var(--bg); color:var(--text); font-family:'Inter',sans-serif; overflow-x:hidden; }
+
+/* ── SCROLLBAR ── */
+::-webkit-scrollbar { width:6px; }
+::-webkit-scrollbar-track { background:var(--bg); }
+::-webkit-scrollbar-thumb { background:linear-gradient(var(--green),var(--blue)); border-radius:3px; }
+
+/* ── NAV ── */
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:900;
+  display:flex; align-items:center; justify-content:space-between;
+  padding:16px 60px;
+  background:rgba(10,10,15,0.85);
+  backdrop-filter:blur(24px);
+  border-bottom:1px solid var(--border);
+}
+.nav-brand { display:flex; align-items:center; gap:12px; text-decoration:none; }
+.nav-logo-icon {
+  width:38px; height:38px; border-radius:10px;
+  background:var(--grad);
+  display:flex; align-items:center; justify-content:center;
+  font-size:1.1rem; flex-shrink:0;
+  box-shadow:var(--shadow-green);
+}
+.nav-brand-name { font-family:'Space Grotesk',sans-serif; font-size:1.1rem; font-weight:700; color:var(--white); }
+.nav-links { display:flex; align-items:center; gap:32px; list-style:none; }
+.nav-links a { font-size:0.88rem; color:var(--gray); text-decoration:none; font-weight:500; transition:color 0.3s; letter-spacing:0.2px; }
+.nav-links a:hover { color:var(--white); }
+.nav-right { display:flex; align-items:center; gap:12px; }
+.btn-book-nav {
+  padding:9px 22px; border-radius:100px;
+  background:var(--grad);
+  color:var(--bg); font-weight:700; font-size:0.82rem;
+  text-decoration:none; border:none; cursor:pointer;
+  transition:all 0.3s; letter-spacing:0.3px;
+  box-shadow:var(--shadow-green);
+}
+.btn-book-nav:hover { transform:translateY(-2px) scale(1.04); box-shadow:0 8px 30px rgba(0,230,118,0.35); }
+/* secret admin tap zone — invisible */
+.secret-admin-zone {
+  position:fixed; bottom:0; left:0;
+  width:60px; height:60px;
+  z-index:9999; cursor:default;
+  background:transparent;
+}
+/* secret tap counter badge */
+.secret-hint {
+  position:fixed; bottom:10px; left:10px;
+  font-size:0.55rem; color:transparent;
+  font-family:'Space Grotesk',sans-serif;
+  letter-spacing:1px; pointer-events:none;
+  transition:color 0.3s; z-index:9998;
+  user-select:none;
+}
+.secret-hint.show { color:rgba(0,230,118,0.4); }
+
+/* ── HERO ── */
+#hero {
+  min-height:100vh; display:flex; flex-direction:column;
+  align-items:center; justify-content:center;
+  text-align:center; padding:120px 24px 80px;
+  position:relative; overflow:hidden;
+}
+.hero-orb {
+  position:absolute; border-radius:50%; filter:blur(80px); pointer-events:none;
+}
+.orb1 { width:500px; height:500px; background:rgba(0,230,118,0.12); top:-100px; left:-100px; }
+.orb2 { width:600px; height:600px; background:rgba(68,138,255,0.1); top:50%; right:-150px; transform:translateY(-50%); }
+.orb3 { width:400px; height:400px; background:rgba(255,77,141,0.12); bottom:-50px; left:30%; }
+
+.hero-tag {
+  display:inline-flex; align-items:center; gap:16px;
+  padding:8px 20px; border-radius:100px;
+  border:1px solid var(--border2);
+  background:rgba(255,255,255,0.04);
+  font-size:0.72rem; font-weight:600; letter-spacing:3px;
+  text-transform:uppercase; color:var(--gray);
+  margin-bottom:32px;
+  opacity:0; animation:fadeUp 0.8s 0.1s ease forwards;
+}
+.hero-tag-dot { width:6px; height:6px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); animation:blink 2s infinite; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+.hero-h1 {
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(2.8rem,6vw,5.2rem);
+  font-weight:800; line-height:1.1;
+  color:var(--white);
+  margin-bottom:16px;
+  opacity:0; animation:fadeUp 0.8s 0.25s ease forwards;
+}
+.hero-h1 .grad-text {
+  background:var(--grad); -webkit-background-clip:text; -webkit-text-fill-color:transparent; background-clip:text;
+}
+
+.hero-sub {
+  max-width:560px; font-size:1.05rem; color:var(--gray); line-height:1.75;
+  margin:0 auto 40px;
+  opacity:0; animation:fadeUp 0.8s 0.4s ease forwards;
+}
+
+.hero-btns {
+  display:flex; align-items:center; justify-content:center; gap:16px; flex-wrap:wrap;
+  opacity:0; animation:fadeUp 0.8s 0.55s ease forwards;
+}
+.btn-wa {
+  display:flex; align-items:center; gap:10px;
+  padding:15px 32px; border-radius:100px;
+  background:linear-gradient(135deg,var(--green2),var(--green));
+  color:var(--bg); font-weight:800; font-size:0.95rem;
+  text-decoration:none; border:none; cursor:pointer;
+  box-shadow:0 8px 30px rgba(0,200,83,0.4); transition:all 0.3s;
+}
+.btn-wa:hover { transform:translateY(-3px); box-shadow:0 14px 40px rgba(0,200,83,0.5); }
+.btn-wa svg { width:20px; height:20px; }
+.btn-services {
+  display:flex; align-items:center; gap:8px;
+  padding:14px 28px; border-radius:100px;
+  background:rgba(255,255,255,0.06); border:1px solid var(--border2);
+  color:var(--white); font-weight:600; font-size:0.9rem;
+  text-decoration:none; cursor:pointer; transition:all 0.3s;
+}
+.btn-services:hover { background:rgba(255,255,255,0.1); transform:translateY(-2px); }
+
+.hero-trust {
+  display:flex; align-items:center; justify-content:center; gap:28px; margin-top:36px; flex-wrap:wrap;
+  opacity:0; animation:fadeUp 0.8s 0.7s ease forwards;
+}
+.trust-item { display:flex; align-items:center; gap:8px; font-size:0.82rem; color:var(--gray2); font-weight:500; }
+.trust-icon { font-size:0.9rem; }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(24px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── MARQUEE ── */
+.marquee-wrap {
+  overflow:hidden; padding:18px 0;
+  background:linear-gradient(90deg,rgba(0,230,118,0.08),rgba(68,138,255,0.08),rgba(255,77,141,0.08));
+  border-top:1px solid var(--border); border-bottom:1px solid var(--border);
+}
+.marquee-track {
+  display:flex; gap:48px; width:max-content;
+  animation:marquee 22s linear infinite;
+}
+@keyframes marquee { from{transform:translateX(0)} to{transform:translateX(-50%)} }
+.marquee-item { display:flex; align-items:center; gap:10px; font-size:0.8rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--gray); white-space:nowrap; }
+.marquee-sep { color:var(--green); font-size:0.7rem; }
+
+/* ── SECTIONS ── */
+section { padding:96px 60px; }
+.sec-label { font-size:0.68rem; font-weight:700; letter-spacing:3px; text-transform:uppercase; margin-bottom:12px; }
+.sec-label.green { color:var(--green); }
+.sec-label.blue { color:var(--blue); }
+.sec-label.pink { color:var(--pink); }
+.sec-title {
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(2rem,4vw,3rem); font-weight:800;
+  color:var(--white); margin-bottom:14px; line-height:1.15;
+}
+.sec-sub { font-size:1rem; color:var(--gray); max-width:520px; line-height:1.7; }
+.sec-head { margin-bottom:56px; }
+
+/* ── SERVICES ── */
+#services { background:var(--bg2); }
+.services-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:24px; }
+.service-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:16px; padding:32px; transition:all 0.35s;
+  position:relative; overflow:hidden; cursor:default;
+}
+.service-card::before {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(135deg,rgba(0,230,118,0.04),rgba(68,138,255,0.04),rgba(255,77,141,0.04));
+  opacity:0; transition:opacity 0.35s;
+}
+.service-card:hover { border-color:rgba(255,255,255,0.2); transform:translateY(-6px); box-shadow:var(--shadow-card); }
+.service-card:hover::before { opacity:1; }
+.service-icon {
+  width:52px; height:52px; border-radius:14px; margin-bottom:20px;
+  display:flex; align-items:center; justify-content:center; font-size:1.5rem;
+}
+.service-icon.g { background:rgba(0,230,118,0.12); box-shadow:0 0 20px rgba(0,230,118,0.12); }
+.service-icon.b { background:rgba(68,138,255,0.12); box-shadow:0 0 20px rgba(68,138,255,0.12); }
+.service-icon.p { background:rgba(255,77,141,0.12); box-shadow:0 0 20px rgba(255,77,141,0.12); }
+.service-icon.v { background:rgba(192,80,255,0.12); box-shadow:0 0 20px rgba(192,80,255,0.12); }
+.service-name { font-family:'Space Grotesk',sans-serif; font-size:1.2rem; font-weight:700; color:var(--white); margin-bottom:10px; }
+.service-desc { font-size:0.88rem; color:var(--gray); line-height:1.7; margin-bottom:20px; }
+.service-price {
+  display:inline-flex; align-items:baseline; gap:4px;
+  padding:8px 18px; border-radius:100px;
+  background:rgba(255,255,255,0.05); border:1px solid var(--border2);
+}
+.price-from { font-size:0.68rem; color:var(--gray2); font-weight:500; text-transform:uppercase; letter-spacing:1px; }
+.price-val { font-family:'Space Grotesk',sans-serif; font-size:1.15rem; font-weight:800; }
+.price-val.green { color:var(--green); }
+.price-val.blue { color:var(--blue); }
+.price-val.pink { color:var(--pink); }
+.price-val.purple { color:var(--purple); }
+.service-badge {
+  position:absolute; top:20px; right:20px;
+  padding:4px 10px; border-radius:100px; font-size:0.6rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase;
+}
+.badge-pop { background:rgba(255,77,141,0.15); border:1px solid rgba(255,77,141,0.3); color:var(--pink); }
+.badge-new { background:rgba(0,230,118,0.12); border:1px solid rgba(0,230,118,0.25); color:var(--green); }
+.service-book-btn {
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  margin-top:20px; padding:11px; border-radius:10px;
+  background:rgba(255,255,255,0.05); border:1px solid var(--border);
+  color:var(--gray); font-size:0.8rem; font-weight:600;
+  text-decoration:none; transition:all 0.3s; cursor:pointer;
+}
+.service-book-btn:hover { background:var(--green2); color:var(--bg); border-color:transparent; }
+
+/* ── EMPTY STATE ── */
+.services-empty {
+  grid-column:1/-1; text-align:center; padding:60px 20px;
+  color:var(--gray2); font-size:0.9rem; font-family:'Space Grotesk',sans-serif;
+}
+.services-empty .icon { font-size:2.5rem; margin-bottom:12px; }
+
+/* ── HOW IT WORKS ── */
+#how { background:var(--bg); }
+.steps-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:0; position:relative; }
+.steps-grid::before {
+  content:''; position:absolute; top:40px; left:0; right:0; height:1px;
+  background:linear-gradient(90deg,transparent,var(--green),var(--blue),var(--pink),transparent);
+  opacity:0.3;
+}
+.step { padding:0 32px 0 0; text-align:center; position:relative; }
+.step-num {
+  width:72px; height:72px; border-radius:50%; margin:0 auto 24px;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Space Grotesk',sans-serif; font-size:1.5rem; font-weight:800;
+  position:relative; z-index:1;
+}
+.step-num.s1 { background:rgba(0,230,118,0.1); color:var(--green); border:2px solid rgba(0,230,118,0.3); }
+.step-num.s2 { background:rgba(68,138,255,0.1); color:var(--blue); border:2px solid rgba(68,138,255,0.3); }
+.step-num.s3 { background:rgba(255,77,141,0.1); color:var(--pink); border:2px solid rgba(255,77,141,0.3); }
+.step-num.s4 { background:rgba(192,80,255,0.1); color:var(--purple); border:2px solid rgba(192,80,255,0.3); }
+.step-title { font-family:'Space Grotesk',sans-serif; font-size:1.05rem; font-weight:700; color:var(--white); margin-bottom:8px; }
+.step-desc { font-size:0.83rem; color:var(--gray); line-height:1.65; }
+
+/* ── REVIEWS ── */
+#reviews { background:var(--bg2); }
+.reviews-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(280px,1fr)); gap:20px; }
+.review-card {
+  background:var(--card); border:1px solid var(--border);
+  border-radius:14px; padding:28px; transition:all 0.3s;
+}
+.review-card:hover { border-color:var(--border2); transform:translateY(-4px); }
+.review-stars { color:#ffc107; font-size:0.9rem; margin-bottom:14px; letter-spacing:2px; }
+.review-text { font-size:0.88rem; color:var(--gray); line-height:1.7; margin-bottom:18px; font-style:italic; }
+.reviewer { display:flex; align-items:center; gap:12px; }
+.reviewer-avatar {
+  width:38px; height:38px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-weight:800; font-size:0.9rem; flex-shrink:0;
+}
+.reviewer-name { font-size:0.85rem; font-weight:700; color:var(--white); }
+.reviewer-tag { font-size:0.72rem; color:var(--gray2); margin-top:2px; }
+
+/* ── FAQ ── */
+#faq { background:var(--bg); }
+.faq-list { max-width:720px; }
+.faq-item {
+  border:1px solid var(--border); border-radius:12px;
+  margin-bottom:12px; overflow:hidden; transition:border 0.3s;
+}
+.faq-item.open { border-color:rgba(68,138,255,0.3); }
+.faq-q {
+  padding:20px 24px; display:flex; justify-content:space-between; align-items:center;
+  cursor:pointer; font-size:0.95rem; font-weight:600; color:var(--white);
+  background:var(--card); transition:background 0.3s;
+}
+.faq-q:hover { background:var(--card2); }
+.faq-icon { transition:transform 0.3s; color:var(--blue); font-size:1.1rem; }
+.faq-item.open .faq-icon { transform:rotate(45deg); }
+.faq-a { display:none; padding:0 24px 20px; background:var(--card); font-size:0.88rem; color:var(--gray); line-height:1.7; }
+.faq-item.open .faq-a { display:block; }
+
+/* ── CTA BANNER ── */
+#cta {
+  padding:80px 60px; text-align:center;
+  background:linear-gradient(135deg,rgba(0,230,118,0.06),rgba(68,138,255,0.06),rgba(255,77,141,0.06));
+  border-top:1px solid var(--border); border-bottom:1px solid var(--border);
+}
+.cta-title { font-family:'Space Grotesk',sans-serif; font-size:clamp(2rem,4vw,3.2rem); font-weight:800; color:var(--white); margin-bottom:16px; }
+.cta-sub { font-size:1rem; color:var(--gray); margin-bottom:36px; }
+
+/* ── CONTACT ── */
+#contact { background:var(--bg2); }
+.contact-grid { display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:start; }
+.contact-links { display:flex; flex-direction:column; gap:16px; }
+.contact-link {
+  display:flex; align-items:center; gap:16px; padding:20px 24px;
+  background:var(--card); border:1px solid var(--border); border-radius:14px;
+  text-decoration:none; color:var(--text); transition:all 0.3s;
+}
+.contact-link:hover { border-color:var(--border2); transform:translateX(6px); }
+.contact-link-icon { font-size:1.4rem; }
+.contact-link-label { font-size:0.65rem; color:var(--gray2); letter-spacing:2px; text-transform:uppercase; font-weight:600; margin-bottom:3px; }
+.contact-link-val { font-size:0.92rem; font-weight:600; color:var(--white); }
+
+/* ── FOOTER ── */
+footer {
+  padding:36px 60px; background:var(--bg);
+  border-top:1px solid var(--border);
+  display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:14px;
+}
+.footer-brand { display:flex; align-items:center; gap:10px; }
+.footer-brand-name { font-family:'Space Grotesk',sans-serif; font-weight:700; color:var(--white); }
+.footer-text { font-size:0.78rem; color:var(--gray2); }
+.footer-text span { color:var(--green); }
+
+/* ── WA FLOAT ── */
+.wa-float {
+  position:fixed; bottom:28px; right:28px; z-index:800;
+  width:56px; height:56px; border-radius:50%;
+  background:linear-gradient(135deg,#25d366,#128c7e);
+  display:flex; align-items:center; justify-content:center;
+  box-shadow:0 8px 28px rgba(37,211,102,0.45);
+  text-decoration:none; transition:all 0.3s;
+  animation:waPulse 2.5s ease-in-out infinite;
+}
+@keyframes waPulse { 0%,100%{box-shadow:0 8px 28px rgba(37,211,102,0.45)} 50%{box-shadow:0 8px 40px rgba(37,211,102,0.65)} }
+.wa-float:hover { transform:scale(1.1); }
+.wa-float svg { width:28px; height:28px; fill:white; }
+
+/* ── TOAST ── */
+.toast {
+  position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(80px);
+  background:linear-gradient(135deg,var(--green),var(--blue));
+  color:var(--bg); padding:13px 28px; border-radius:100px;
+  font-weight:700; font-size:0.82rem; letter-spacing:0.5px;
+  z-index:9999; pointer-events:none; opacity:0; transition:all 0.4s;
+  white-space:nowrap; box-shadow:var(--shadow-green);
+}
+.toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* ── ADMIN OVERLAY ── */
+#admin-overlay {
+  display:none; position:fixed; inset:0;
+  background:rgba(0,0,0,0.8); backdrop-filter:blur(10px);
+  z-index:5000; align-items:center; justify-content:center;
+}
+#admin-overlay.open { display:flex; }
+.admin-panel {
+  background:var(--bg2); border:1px solid var(--border2);
+  border-radius:20px; width:92%; max-width:880px;
+  max-height:92vh; overflow-y:auto;
+  box-shadow:0 30px 80px rgba(0,0,0,0.6);
+}
+.admin-header {
+  padding:24px 32px; border-bottom:1px solid var(--border);
+  display:flex; justify-content:space-between; align-items:center;
+  background:linear-gradient(135deg,rgba(0,230,118,0.06),rgba(68,138,255,0.06));
+  border-radius:20px 20px 0 0; position:sticky; top:0; z-index:10;
+}
+.admin-header h2 { font-family:'Space Grotesk',sans-serif; font-size:1.3rem; font-weight:800; color:var(--white); }
+.admin-close {
+  width:36px; height:36px; border-radius:50%;
+  background:rgba(255,255,255,0.08); border:1px solid var(--border);
+  color:var(--gray); font-size:1rem; cursor:pointer; transition:all 0.3s;
+  display:flex; align-items:center; justify-content:center;
+}
+.admin-close:hover { background:rgba(255,77,141,0.2); color:var(--pink); border-color:rgba(255,77,141,0.3); }
+
+/* LOGIN */
+.login-box { padding:60px 40px; max-width:400px; margin:0 auto; text-align:center; }
+.login-box h3 { font-family:'Space Grotesk',sans-serif; font-size:1.5rem; font-weight:800; color:var(--white); margin-bottom:8px; }
+.login-box p { font-size:0.85rem; color:var(--gray); margin-bottom:32px; }
+.a-input {
+  width:100%; padding:14px 18px; background:var(--card); border:1px solid var(--border);
+  border-radius:10px; color:var(--white); font-size:0.92rem; font-family:'Inter',sans-serif;
+  outline:none; transition:border 0.3s; margin-bottom:14px;
+}
+.a-input:focus { border-color:var(--green); box-shadow:0 0 0 3px rgba(0,230,118,0.1); }
+.a-btn {
+  width:100%; padding:14px; border-radius:10px; border:none; cursor:pointer;
+  font-family:'Space Grotesk',sans-serif; font-weight:700; font-size:0.9rem;
+  background:var(--grad); color:var(--bg); transition:all 0.3s; letter-spacing:0.5px;
+}
+.a-btn:hover { opacity:0.9; transform:translateY(-1px); }
+.a-btn.del { background:linear-gradient(135deg,#ff4444,#cc0000); color:white; margin-top:8px; }
+.a-btn.sec { background:rgba(255,255,255,0.06); color:var(--white); border:1px solid var(--border2); }
+.a-btn.sec:hover { background:rgba(255,255,255,0.1); }
+.a-btn.sm { width:auto; padding:9px 20px; font-size:0.78rem; }
+.login-err { color:var(--pink); font-size:0.78rem; margin-top:8px; display:none; font-family:'Space Grotesk',sans-serif; }
+
+/* TABS */
+.admin-tabs { display:flex; border-bottom:1px solid var(--border); padding:0 32px; }
+.a-tab {
+  padding:16px 18px; background:transparent; border:none; cursor:pointer;
+  font-size:0.75rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase;
+  color:var(--gray); transition:all 0.3s; border-bottom:2px solid transparent; margin-bottom:-1px;
+}
+.a-tab.active { color:var(--green); border-bottom-color:var(--green); }
+.a-body { padding:32px; }
+.a-section { display:none; }
+.a-section.active { display:block; }
+
+/* SERVICE FORM */
+.svc-list-admin { display:flex; flex-direction:column; gap:12px; margin-bottom:24px; }
+.svc-admin-row {
+  display:flex; align-items:center; justify-content:space-between; gap:16px;
+  padding:16px 20px; background:var(--card); border:1px solid var(--border); border-radius:12px;
+}
+.svc-row-info { flex:1; }
+.svc-row-name { font-weight:700; color:var(--white); font-size:0.92rem; margin-bottom:3px; }
+.svc-row-price { font-size:0.75rem; color:var(--green); font-family:'Space Grotesk',sans-serif; font-weight:600; }
+.svc-row-actions { display:flex; gap:8px; flex-shrink:0; }
+.edit-btn { padding:7px 14px; border-radius:8px; background:rgba(68,138,255,0.12); border:1px solid rgba(68,138,255,0.25); color:var(--blue); font-size:0.72rem; font-weight:700; cursor:pointer; transition:all 0.3s; letter-spacing:0.5px; }
+.edit-btn:hover { background:var(--blue); color:var(--bg); }
+.del-btn { padding:7px 14px; border-radius:8px; background:rgba(255,77,141,0.08); border:1px solid rgba(255,77,141,0.2); color:var(--pink); font-size:0.72rem; font-weight:700; cursor:pointer; transition:all 0.3s; }
+.del-btn:hover { background:var(--pink); color:var(--bg); }
+
+.svc-form { background:var(--card); border:1px solid var(--border); border-radius:14px; padding:24px; margin-top:20px; display:none; }
+.svc-form h4 { font-family:'Space Grotesk',sans-serif; font-size:1rem; font-weight:700; color:var(--white); margin-bottom:20px; }
+.f-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-bottom:14px; }
+.f-full { margin-bottom:14px; }
+.f-label { display:block; font-size:0.62rem; font-weight:700; letter-spacing:2px; text-transform:uppercase; color:var(--green); margin-bottom:7px; }
+.f-inp, .f-sel, .f-ta {
+  width:100%; padding:12px 16px; background:var(--bg2); border:1px solid var(--border);
+  border-radius:8px; color:var(--white); font-family:'Inter',sans-serif; font-size:0.88rem;
+  outline:none; transition:border 0.3s;
+}
+.f-inp:focus, .f-sel:focus, .f-ta:focus { border-color:var(--blue); }
+.f-sel option { background:var(--card2); }
+.f-ta { height:90px; resize:vertical; }
+.form-actions { display:flex; gap:10px; margin-top:6px; }
+
+/* FIREBASE NOTE */
+.firebase-note {
+  padding:16px 20px; background:rgba(68,138,255,0.06); border:1px solid rgba(68,138,255,0.2);
+  border-radius:10px; font-size:0.78rem; color:var(--gray); line-height:1.7; margin-bottom:20px;
+}
+.firebase-note strong { color:var(--blue); }
+.firebase-note code { background:rgba(68,138,255,0.15); padding:2px 6px; border-radius:4px; color:var(--blue); font-size:0.75rem; }
+.firebase-status { display:flex; align-items:center; gap:8px; font-size:0.75rem; font-weight:600; margin-bottom:20px; }
+.status-dot { width:8px; height:8px; border-radius:50%; }
+.status-dot.ok { background:var(--green); box-shadow:0 0 8px var(--green); }
+.status-dot.err { background:var(--pink); box-shadow:0 0 8px var(--pink); }
+.status-dot.warn { background:#ffc107; box-shadow:0 0 8px #ffc107; }
+
+/* RESPONSIVE */
+@media(max-width:960px){
+  nav{padding:14px 24px;}
+  .nav-links{display:none;}
+  section{padding:72px 24px;}
+  .contact-grid{grid-template-columns:1fr;gap:40px;}
+  footer{flex-direction:column;text-align:center;padding:28px 24px;}
+  .steps-grid{grid-template-columns:1fr 1fr;gap:40px;}
+  .steps-grid::before{display:none;}
+  #cta{padding:60px 24px;}
+}
+@media(max-width:600px){
+  .hero-h1{font-size:2.4rem;}
+  .steps-grid{grid-template-columns:1fr;}
+  .f-row{grid-template-columns:1fr;}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-brand">
+    <div class="nav-logo-icon">⚡</div>
+    <span class="nav-brand-name">Student Service Hub</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#services">Services</a></li>
+    <li><a href="#reviews">Reviews</a></li>
+    <li><a href="#faq">FAQ</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <!-- admin entry hidden -->
+    <a href="https://wa.me/8801576922769?text=Hi!%20I%20want%20to%20book%20a%20service." target="_blank" class="btn-book-nav">Book Now</a>
+  </div>
+</nav>
+
+<!-- WA FLOAT -->
+<a href="https://wa.me/8801576922769?text=Hi!%20I%20want%20to%20book%20a%20service." target="_blank" class="wa-float" title="Book on WhatsApp">
+  <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+</a>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-orb orb1"></div>
+  <div class="hero-orb orb2"></div>
+  <div class="hero-orb orb3"></div>
+  <div class="hero-tag">
+    <span class="hero-tag-dot"></span>
+    Assignments · Notebooks · PPT · Word · PDF
+  </div>
+  <h1 class="hero-h1">
+    Get your academic work<br>
+    <span class="grad-text">formatted, designed, done.</span>
+  </h1>
+  <p class="hero-sub">Message us on WhatsApp, tell us what you need, and get a polished assignment, notebook, or presentation — without the late-night panic.</p>
+  <div class="hero-btns">
+    <a href="https://wa.me/8801576922769?text=Hi!%20I%20want%20to%20book%20a%20service." target="_blank" class="btn-wa">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Book on WhatsApp
+    </a>
+    <a href="#services" class="btn-services">See Services ↓</a>
+  </div>
+  <div class="hero-trust">
+    <span class="trust-item"><span class="trust-icon">🛡️</span> Academic assistance only</span>
+    <span class="trust-item"><span class="trust-icon">⚡</span> Reply within hours</span>
+    <span class="trust-item"><span class="trust-icon">✅</span> 100% satisfaction</span>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-wrap">
+  <div class="marquee-track" id="marquee">
+    <span class="marquee-item">📄 Assignment Writing <span class="marquee-sep">✦</span></span>
+    <span class="marquee-item">📓 Notebook Formatting <span class="marquee-sep">✦</span></span>
+    <span class="marquee-item">📊 PowerPoint Design <span class="marquee-sep">✦</span></span>
+    <span class="marquee-item">📝 Word Document <span class="marquee-sep">✦</span></span>
+    <span class="marquee-item">📑 PDF Editing <span class="marquee-sep">✦</span></span>
+    <span class="marquee-item">🎨 Illustrator Work <span class="marquee-sep">✦</span></span>
+    <span class="marquee-item">📄 Assignment Writing <span class="marquee-sep">✦</span></span>
+    <span class="marquee-item">📓 Notebook Formatting <span class="marquee-sep">✦</span></span>
+    <span class="marquee-item">📊 PowerPoint Design <span class="marquee-sep">✦</span></span>
+    <span class="marquee-item">📝 Word Document <span class="marquee-sep">✦</span></span>
+    <span class="marquee-item">📑 PDF Editing <span class="marquee-sep">✦</span></span>
+    <span class="marquee-item">🎨 Illustrator Work <span class="marquee-sep">✦</span></span>
+  </div>
+</div>
+
+<!-- SERVICES -->
+<section id="services">
+  <div class="sec-head">
+    <div class="sec-label green">// Services</div>
+    <h2 class="sec-title">Everything you need,<br>done professionally.</h2>
+    <p class="sec-sub">All services delivered with care, on time. Book via WhatsApp — no signup needed.</p>
+  </div>
+  <div class="services-grid" id="services-grid">
+    <div class="services-empty"><div class="icon">⏳</div><p>Loading services...</p></div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="sec-head" style="text-align:center;">
+    <div class="sec-label blue" style="text-align:center;">// How it Works</div>
+    <h2 class="sec-title" style="text-align:center;">From request to delivery<br>in 3 simple steps.</h2>
+  </div>
+  <div class="steps-grid">
+    <div class="step">
+      <div class="step-num s1">1</div>
+      <div class="step-title">Browse & Choose</div>
+      <div class="step-desc">Look through our services, pick what you need, and check the price.</div>
+    </div>
+    <div class="step">
+      <div class="step-num s2">2</div>
+      <div class="step-title">Message on WhatsApp</div>
+      <div class="step-desc">Click "Book Now" — you'll be taken directly to WhatsApp to describe your requirement.</div>
+    </div>
+    <div class="step">
+      <div class="step-num s3">3</div>
+      <div class="step-title">Confirm & Pay</div>
+      <div class="step-desc">We confirm details, agree on deadline, and you pay after discussing — simple and safe.</div>
+    </div>
+    <div class="step">
+      <div class="step-num s4">4</div>
+      <div class="step-title">Get Your Work</div>
+      <div class="step-desc">Receive your polished, formatted, print-ready file on time. 100% satisfaction guaranteed.</div>
+    </div>
+  </div>
+</section>
+
+<!-- REVIEWS -->
+<section id="reviews">
+  <div class="sec-head">
+    <div class="sec-label pink">// Reviews</div>
+    <h2 class="sec-title">What students say</h2>
+  </div>
+  <div class="reviews-grid">
+    <div class="review-card">
+      <div class="review-stars">★★★★★</div>
+      <p class="review-text">"My assignment was formatted perfectly within 3 hours. The design was clean and professional. Highly recommended!"</p>
+      <div class="reviewer">
+        <div class="reviewer-avatar" style="background:rgba(0,230,118,0.15);color:var(--green);">R</div>
+        <div><div class="reviewer-name">Rafi Ahmed</div><div class="reviewer-tag">PTEC Student</div></div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="review-stars">★★★★★</div>
+      <p class="review-text">"Ordered a PowerPoint presentation — got back a stunning, professional deck. Way better than I expected!"</p>
+      <div class="reviewer">
+        <div class="reviewer-avatar" style="background:rgba(68,138,255,0.15);color:var(--blue);">S</div>
+        <div><div class="reviewer-name">Sadia Islam</div><div class="reviewer-tag">University Student</div></div>
+      </div>
+    </div>
+    <div class="review-card">
+      <div class="review-stars">★★★★★</div>
+      <p class="review-text">"Fast, affordable, and very professional. My notebook was formatted exactly how I wanted. Will order again!"</p>
+      <div class="reviewer">
+        <div class="reviewer-avatar" style="background:rgba(255,77,141,0.15);color:var(--pink);">T</div>
+        <div><div class="reviewer-name">Tanvir Hassan</div><div class="reviewer-tag">College Student</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="sec-head">
+    <div class="sec-label green">// FAQ</div>
+    <h2 class="sec-title">Common questions</h2>
+  </div>
+  <div class="faq-list">
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">How do I place an order? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Simply click "Book Now" or "Book on WhatsApp" — you'll be taken directly to our WhatsApp chat where you can describe your requirement and we'll get started.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">How long does delivery take? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Most assignments and documents are delivered within 3–24 hours depending on complexity. We always discuss deadlines before starting.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">What formats do you deliver in? <span class="faq-icon">+</span></div>
+      <div class="faq-a">We deliver in PDF, DOCX, PPTX, XLSX, or any format you need. Print-ready files are always available.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Is my information kept private? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Absolutely. We never share your work or personal details with anyone. Your privacy is our top priority.</div>
+    </div>
+    <div class="faq-item">
+      <div class="faq-q" onclick="toggleFaq(this)">Can I request revisions? <span class="faq-icon">+</span></div>
+      <div class="faq-a">Yes! We offer free revisions until you are 100% satisfied with the final result. Just message us on WhatsApp.</div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section id="cta">
+  <h2 class="cta-title">Ready to get your work done?</h2>
+  <p class="cta-sub">Message us now — we reply within hours, every day.</p>
+  <a href="https://wa.me/8801576922769?text=Hi!%20I%20want%20to%20book%20a%20service." target="_blank" class="btn-wa" style="display:inline-flex;margin:0 auto;">
+    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:20px;height:20px;fill:var(--bg)"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+    Book on WhatsApp Now
+  </a>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="sec-head">
+    <div class="sec-label blue">// Contact</div>
+    <h2 class="sec-title">Get in touch</h2>
+  </div>
+  <div class="contact-grid">
+    <div class="contact-links">
+      <a href="https://wa.me/8801576922769" target="_blank" class="contact-link">
+        <span class="contact-link-icon">💬</span>
+        <div><div class="contact-link-label">WhatsApp</div><div class="contact-link-val">01576922769</div></div>
+      </a>
+      <a href="mailto:mdasifalibiswas@gmail.com" class="contact-link">
+        <span class="contact-link-icon">✉️</span>
+        <div><div class="contact-link-label">Email</div><div class="contact-link-val">mdasifalibiswas@gmail.com</div></div>
+      </a>
+      <div class="contact-link">
+        <span class="contact-link-icon">📍</span>
+        <div><div class="contact-link-label">Location</div><div class="contact-link-val">Pabna, Bangladesh</div></div>
+      </div>
+      <div class="contact-link">
+        <span class="contact-link-icon">⏰</span>
+        <div><div class="contact-link-label">Hours</div><div class="contact-link-val">Every day, 8AM – 11PM</div></div>
+      </div>
+    </div>
+    <div>
+      <p style="color:var(--gray);font-size:0.92rem;line-height:1.8;margin-bottom:24px;">The fastest way to reach us is always WhatsApp. Describe your service, subject, deadline, and number of pages — and we'll get back to you within hours.</p>
+      <a href="https://wa.me/8801576922769?text=Hi!%20I%20need%20help%20with%3A%20" target="_blank" class="btn-wa" style="display:inline-flex;">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" style="width:18px;height:18px;fill:var(--bg)"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+        Message on WhatsApp
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-brand">
+    <div class="nav-logo-icon" style="width:32px;height:32px;font-size:0.9rem;">⚡</div>
+    <span class="footer-brand-name">Student Service Hub</span>
+  </div>
+  <div class="footer-text">© 2025 Student Service Hub · <span>All rights reserved</span></div>
+  <div class="footer-text">Made with ❤️ in <span>Pabna, Bangladesh</span></div>
+</footer>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- SECRET ADMIN ZONE — invisible bottom-left corner, tap 5x fast to open -->
+<div class="secret-admin-zone" id="secret-zone" onclick="secretTap()"></div>
+<div class="secret-hint" id="secret-hint">⚙</div>
+
+<!-- ===== ADMIN PANEL ===== -->
+<div id="admin-overlay">
+  <div class="admin-panel">
+    <div class="admin-header">
+      <h2>⚙️ Admin Panel</h2>
+      <button class="admin-close" onclick="closeAdmin()">✕</button>
+    </div>
+
+    <!-- LOGIN -->
+    <div id="a-login">
+      <div class="login-box">
+        <h3>🔐 Admin Login</h3>
+        <p>Sign in with your Firebase email & password</p>
+        <input type="email" class="a-input" id="a-email" placeholder="Email address" onkeydown="if(event.key==='Enter')doLogin()">
+        <input type="password" class="a-input" id="a-pass" placeholder="Password" onkeydown="if(event.key==='Enter')doLogin()">
+        <button class="a-btn" onclick="doLogin()">Sign In →</button>
+        <div class="login-err" id="a-err">❌ Wrong credentials. Try again.</div>
+        <div class="firebase-note" style="margin-top:20px;text-align:left;">
+          <strong>Setup note:</strong> Use your Firebase Authentication email & password. Set up Authentication in Firebase Console → Authentication → Add user.
+        </div>
+      </div>
+    </div>
+
+    <!-- DASHBOARD -->
+    <div id="a-dash" style="display:none;">
+      <div class="admin-tabs">
+        <button class="a-tab active" onclick="switchTab('services')">🛍️ Services</button>
+        <button class="a-tab" onclick="switchTab('settings')">⚙️ Settings</button>
+      </div>
+      <div class="a-body">
+
+        <!-- SERVICES TAB -->
+        <div class="a-section active" id="tab-services">
+          <div class="firebase-status" id="fb-status">
+            <div class="status-dot warn" id="fb-dot"></div>
+            <span id="fb-status-text">Checking Firebase connection...</span>
+          </div>
+          <div class="svc-list-admin" id="admin-svc-list">
+            <div style="color:var(--gray2);font-size:0.8rem;">Loading...</div>
+          </div>
+          <button class="a-btn" style="width:auto;padding:12px 24px;font-size:0.82rem;" onclick="showSvcForm()">＋ Add New Service</button>
+
+          <div class="svc-form" id="svc-form">
+            <h4 id="svc-form-title">Add New Service</h4>
+            <input type="hidden" id="svc-edit-id">
+            <div class="f-row">
+              <div><label class="f-label">Service Name *</label><input class="f-inp" id="f-name" placeholder="e.g. Assignment Writing"></div>
+              <div><label class="f-label">Category</label>
+                <select class="f-sel" id="f-cat">
+                  <option value="Assignment">Assignment</option>
+                  <option value="Notebook">Notebook</option>
+                  <option value="Presentation">Presentation</option>
+                  <option value="Document">Document</option>
+                  <option value="Design">Design</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+            <div class="f-full"><label class="f-label">Description *</label><textarea class="f-ta" id="f-desc" placeholder="Short description of what's included..."></textarea></div>
+            <div class="f-row">
+              <div><label class="f-label">Starting Price (৳) *</label><input class="f-inp" id="f-price" type="number" placeholder="e.g. 150"></div>
+              <div><label class="f-label">Badge (optional)</label>
+                <select class="f-sel" id="f-badge">
+                  <option value="">None</option>
+                  <option value="popular">🔥 Popular</option>
+                  <option value="new">✨ New</option>
+                </select>
+              </div>
+            </div>
+            <div class="f-row">
+              <div><label class="f-label">Icon (emoji)</label><input class="f-inp" id="f-icon" placeholder="e.g. 📄" maxlength="4"></div>
+              <div><label class="f-label">Color Theme</label>
+                <select class="f-sel" id="f-color">
+                  <option value="g">Green</option>
+                  <option value="b">Blue</option>
+                  <option value="p">Pink</option>
+                  <option value="v">Purple</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-actions">
+              <button class="a-btn sm" onclick="saveSvc()">💾 Save Service</button>
+              <button class="a-btn sm sec" onclick="cancelSvcForm()">Cancel</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- SETTINGS TAB -->
+        <div class="a-section" id="tab-settings">
+          <div class="firebase-note">
+            <strong>🔥 Firebase Connected</strong> — Project: <code>student-service-hub-cbac5</code><br><br>
+            ✅ Services are saved to Firestore and update live for all visitors.<br>
+            ✅ Only you can add/edit/delete (Firebase Auth protected).<br><br>
+            <strong>Firestore Security Rules (set this in Firebase Console):</strong><br>
+            <code>allow read: if true;</code><br>
+            <code>allow write: if request.auth != null;</code><br><br>
+            <strong>🔐 Secret Admin Access Methods:</strong><br>
+            • Tap bottom-left corner <strong>5 times fast</strong><br>
+            • Keyboard: <strong>Ctrl + Shift + A</strong><br>
+            (No admin button is visible to customers)
+          </div>
+          <div style="display:flex;gap:12px;flex-wrap:wrap;">
+            <button class="a-btn del" style="width:auto;padding:12px 24px;" onclick="doLogout()">🚪 Logout</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===== SECRET ADMIN ACCESS =====
+// Method 1: Click bottom-left corner 5 times fast
+// Method 2: Keyboard shortcut Ctrl+Shift+A
+let secretTaps = 0;
+let secretTimer = null;
+
+function secretTap() {
+  secretTaps++;
+  const hint = document.getElementById('secret-hint');
+
+  // Show faint indicator only after 2 taps
+  if(secretTaps >= 2) {
+    hint.classList.add('show');
+    hint.textContent = '⚙ ' + secretTaps + '/5';
+  }
+
+  clearTimeout(secretTimer);
+  secretTimer = setTimeout(() => {
+    secretTaps = 0;
+    hint.classList.remove('show');
+    hint.textContent = '⚙';
+  }, 2000);
+
+  if(secretTaps >= 5) {
+    secretTaps = 0;
+    hint.classList.remove('show');
+    hint.textContent = '⚙';
+    openAdmin();
+  }
+}
+
+// Keyboard shortcut: Ctrl + Shift + A
+document.addEventListener('keydown', function(e) {
+  if(e.ctrlKey && e.shiftKey && e.key === 'A') {
+    e.preventDefault();
+    openAdmin();
+  }
+});
+
+// ===== FIREBASE STATE =====
+let isLoggedIn = false;
+let db, auth, fb;
+let editingId = null;
+
+window.initFirebase = function() {
+  db = window._db;
+  auth = window._auth;
+  fb = window._firebase;
+
+  if(!db || !auth) {
+    updateFBStatus(false, 'Firebase not configured yet. See Settings tab.');
+    loadFallbackServices();
+    return;
+  }
+
+  fb.onAuthStateChanged(auth, user => {
+    isLoggedIn = !!user;
+    if(user && document.getElementById('a-dash').style.display === 'none') {
+      showDash();
+    }
+  });
+
+  loadServices();
+};
+
+// ===== STATUS =====
+function updateFBStatus(ok, msg) {
+  const dot = document.getElementById('fb-dot');
+  const txt = document.getElementById('fb-status-text');
+  if(!dot) return;
+  dot.className = 'status-dot ' + (ok ? 'ok' : (ok === null ? 'warn' : 'err'));
+  if(txt) txt.textContent = msg;
+}
+
+// ===== LOAD SERVICES =====
+async function loadServices() {
+  if(!db || !fb) { loadFallbackServices(); return; }
+  try {
+    const q = fb.query(fb.collection(db, 'services'), fb.orderBy('createdAt', 'asc'));
+    fb.onSnapshot(q, snap => {
+      const svcs = [];
+      snap.forEach(d => svcs.push({ id: d.id, ...d.data() }));
+      if(svcs.length > 0) {
+        renderServices(svcs);
+        updateFBStatus(true, 'Firebase connected ✓ — ' + svcs.length + ' service(s) loaded');
+      } else {
+        loadFallbackServices();
+        updateFBStatus(true, 'Firebase connected ✓ — No services yet. Add your first!');
+      }
+      if(isLoggedIn) renderAdminServices(svcs);
+    }, err => {
+      updateFBStatus(false, 'Firebase error: ' + err.message);
+      loadFallbackServices();
+    });
+  } catch(e) {
+    updateFBStatus(false, 'Firebase error: ' + e.message);
+    loadFallbackServices();
+  }
+}
+
+function loadFallbackServices() {
+  const defaults = [
+    { id:'d1', name:'Assignment Writing', category:'Assignment', description:'Professionally formatted assignments with proper structure, headings, and references. Word & PDF formats.', price:150, icon:'📄', color:'g', badge:'popular' },
+    { id:'d2', name:'Notebook Formatting', category:'Notebook', description:'Clean, organized notebook layout with chapter divisions, diagrams, and neat handwriting-style formatting.', price:200, icon:'📓', color:'b', badge:'' },
+    { id:'d3', name:'PowerPoint Design', category:'Presentation', description:'Stunning slide decks with professional graphics, animations, and consistent design. Print-ready.', price:250, icon:'📊', color:'p', badge:'popular' },
+    { id:'d4', name:'Word Document', category:'Document', description:'Professional Word documents with proper typography, tables of contents, headers, and formatting.', price:120, icon:'📝', color:'v', badge:'' },
+    { id:'d5', name:'PDF Editing', category:'Document', description:'Edit, merge, split, or reformat any PDF file. Add watermarks, signatures, and more.', price:100, icon:'📑', color:'g', badge:'new' },
+    { id:'d6', name:'Illustrator Work', category:'Design', description:'Vector graphics, logos, diagrams, and technical illustrations using Adobe Illustrator.', price:300, icon:'🎨', color:'p', badge:'' },
+  ];
+  renderServices(defaults);
+  if(isLoggedIn) renderAdminServices(defaults);
+}
+
+// ===== RENDER SERVICES =====
+const colorMap = {
+  g: { cls:'green', label:'green' },
+  b: { cls:'blue', label:'blue' },
+  p: { cls:'pink', label:'pink' },
+  v: { cls:'purple', label:'purple' }
+};
+
+function renderServices(svcs) {
+  const grid = document.getElementById('services-grid');
+  if(!grid) return;
+  if(!svcs.length) {
+    grid.innerHTML = '<div class="services-empty"><div class="icon">📭</div><p>No services available yet. Check back soon!</p></div>';
+    return;
+  }
+  const wa = '8801576922769';
+  grid.innerHTML = svcs.map(s => {
+    const c = colorMap[s.color || 'g'];
+    const badge = s.badge === 'popular' ? '<span class="service-badge badge-pop">🔥 Popular</span>'
+                : s.badge === 'new' ? '<span class="service-badge badge-new">✨ New</span>' : '';
+    const waMsg = encodeURIComponent(`Hi! I want to book: ${s.name} service. Price: ৳${s.price}+`);
+    return `<div class="service-card">
+      ${badge}
+      <div class="service-icon ${s.color || 'g'}">${s.icon || '📄'}</div>
+      <div class="service-name">${s.name}</div>
+      <div class="service-desc">${s.description}</div>
+      <div class="service-price">
+        <span class="price-from">From</span>
+        <span class="price-val ${c.label}">৳${s.price}</span>
+      </div>
+      <a href="https://wa.me/${wa}?text=${waMsg}" target="_blank" class="service-book-btn">
+        💬 Book This Service →
+      </a>
+    </div>`;
+  }).join('');
+}
+
+// ===== ADMIN RENDER =====
+function renderAdminServices(svcs) {
+  const list = document.getElementById('admin-svc-list');
+  if(!list) return;
+  if(!svcs.length) {
+    list.innerHTML = '<p style="color:var(--gray2);font-size:0.82rem;">No services yet. Add your first!</p>';
+    return;
+  }
+  list.innerHTML = svcs.map(s => `
+    <div class="svc-admin-row">
+      <div class="svc-row-info">
+        <div class="svc-row-name">${s.icon || ''} ${s.name}</div>
+        <div class="svc-row-price">৳${s.price}+ · ${s.category || ''} ${s.badge ? '· '+s.badge : ''}</div>
+      </div>
+      <div class="svc-row-actions">
+        <button class="edit-btn" onclick="editSvc('${s.id}')">✏️ Edit</button>
+        <button class="del-btn" onclick="deleteSvc('${s.id}')">🗑</button>
+      </div>
+    </div>`).join('');
+}
+
+// ===== ADD / EDIT SERVICE =====
+function showSvcForm() {
+  editingId = null;
+  document.getElementById('svc-form-title').textContent = 'Add New Service';
+  document.getElementById('svc-edit-id').value = '';
+  ['f-name','f-desc','f-price','f-icon'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-cat').value = 'Assignment';
+  document.getElementById('f-badge').value = '';
+  document.getElementById('f-color').value = 'g';
+  document.getElementById('svc-form').style.display = 'block';
+  document.getElementById('svc-form').scrollIntoView({behavior:'smooth'});
+}
+
+function cancelSvcForm() { document.getElementById('svc-form').style.display = 'none'; editingId = null; }
+
+async function editSvc(id) {
+  if(!db || !fb) { toast('Firebase not connected!'); return; }
+  try {
+    const d = await fb.getDocs(fb.collection(db, 'services'));
+    d.forEach(doc => {
+      if(doc.id === id) {
+        const s = doc.data();
+        editingId = id;
+        document.getElementById('svc-form-title').textContent = 'Edit Service';
+        document.getElementById('svc-edit-id').value = id;
+        document.getElementById('f-name').value = s.name || '';
+        document.getElementById('f-desc').value = s.description || '';
+        document.getElementById('f-price').value = s.price || '';
+        document.getElementById('f-icon').value = s.icon || '';
+        document.getElementById('f-cat').value = s.category || 'Assignment';
+        document.getElementById('f-badge').value = s.badge || '';
+        document.getElementById('f-color').value = s.color || 'g';
+        document.getElementById('svc-form').style.display = 'block';
+        document.getElementById('svc-form').scrollIntoView({behavior:'smooth'});
+      }
+    });
+  } catch(e) { toast('Error: '+e.message); }
+}
+
+async function saveSvc() {
+  const name = document.getElementById('f-name').value.trim();
+  const desc = document.getElementById('f-desc').value.trim();
+  const price = parseInt(document.getElementById('f-price').value);
+  if(!name || !desc || !price) { toast('❗ Fill in name, description, and price!'); return; }
+
+  const data = {
+    name, description: desc, price,
+    category: document.getElementById('f-cat').value,
+    badge: document.getElementById('f-badge').value,
+    icon: document.getElementById('f-icon').value || '📄',
+    color: document.getElementById('f-color').value,
+    createdAt: new Date().toISOString()
+  };
+
+  if(!db || !fb) { toast('❗ Firebase not connected!'); return; }
+  try {
+    if(editingId) {
+      await fb.updateDoc(fb.doc(db, 'services', editingId), data);
+      toast('✅ Service updated!');
+    } else {
+      await fb.addDoc(fb.collection(db, 'services'), data);
+      toast('✅ Service added!');
+    }
+    cancelSvcForm();
+  } catch(e) { toast('Error: '+e.message); }
+}
+
+async function deleteSvc(id) {
+  if(!confirm('Delete this service?')) return;
+  if(!db || !fb) { toast('Firebase not connected!'); return; }
+  try {
+    await fb.deleteDoc(fb.doc(db, 'services', id));
+    toast('🗑 Service deleted');
+  } catch(e) { toast('Error: '+e.message); }
+}
+
+// ===== ADMIN AUTH =====
+function openAdmin() { document.getElementById('admin-overlay').classList.add('open'); if(isLoggedIn) showDash(); }
+function closeAdmin() { document.getElementById('admin-overlay').classList.remove('open'); }
+document.getElementById('admin-overlay').addEventListener('click', function(e){ if(e.target===this) closeAdmin(); });
+
+async function doLogin() {
+  const email = document.getElementById('a-email').value.trim();
+  const pass = document.getElementById('a-pass').value;
+  if(!email||!pass) { document.getElementById('a-err').style.display='block'; return; }
+  if(!auth||!fb) { toast('Firebase not configured!'); return; }
+  try {
+    await fb.signInWithEmailAndPassword(auth, email, pass);
+    document.getElementById('a-err').style.display='none';
+    isLoggedIn = true;
+    showDash();
+    toast('✅ Welcome back!');
+  } catch(e) {
+    document.getElementById('a-err').style.display='block';
+    document.getElementById('a-err').textContent = '❌ ' + e.message;
+  }
+}
+
+async function doLogout() {
+  if(!auth||!fb) return;
+  await fb.signOut(auth);
+  isLoggedIn = false;
+  document.getElementById('a-dash').style.display='none';
+  document.getElementById('a-login').style.display='block';
+  toast('👋 Logged out');
+}
+
+function showDash() {
+  document.getElementById('a-login').style.display='none';
+  document.getElementById('a-dash').style.display='block';
+  loadServices();
+}
+
+function switchTab(name) {
+  document.querySelectorAll('.a-tab').forEach((t,i) => {
+    t.classList.toggle('active', ['services','settings'][i] === name);
+  });
+  document.querySelectorAll('.a-section').forEach(s => s.classList.remove('active'));
+  document.getElementById('tab-'+name).classList.add('active');
+}
+
+// ===== UI HELPERS =====
+function toggleFaq(el) {
+  const item = el.parentElement;
+  item.classList.toggle('open');
+}
+
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// Scroll animations
+const obs = new IntersectionObserver(entries => entries.forEach(e => {
+  if(e.isIntersecting){ e.target.style.opacity='1'; e.target.style.transform='translateY(0)'; }
+}), {threshold:0.1});
+document.querySelectorAll('.service-card,.review-card,.step,.contact-link').forEach((el,i) => {
+  el.style.opacity='0'; el.style.transform='translateY(20px)';
+  el.style.transition=`opacity 0.5s ${i*0.07}s ease, transform 0.5s ${i*0.07}s ease, border 0.3s, box-shadow 0.3s`;
+  obs.observe(el);
+});
+</script>
+</body>
+</html>
