@@ -259,11 +259,18 @@ section { padding:96px 60px; }
   background:rgba(255,255,255,0.05); border:1px solid var(--border2);
 }
 .price-from { font-size:0.68rem; color:var(--gray2); font-weight:500; text-transform:uppercase; letter-spacing:1px; }
-.price-val { font-family:'Space Grotesk',sans-serif; font-size:1.15rem; font-weight:800; }
+.price-val { font-family:'Space Grotesk',sans-serif; font-size:1.1rem; font-weight:800; }
 .price-val.green { color:var(--green); }
 .price-val.blue { color:var(--blue); }
 .price-val.pink { color:var(--pink); }
 .price-val.purple { color:var(--purple); }
+.price-negotiable {
+  display:inline-flex; align-items:center; gap:7px;
+  padding:8px 16px; border-radius:100px;
+  background:rgba(255,193,7,0.1); border:1px solid rgba(255,193,7,0.25);
+  font-size:0.78rem; font-weight:700; color:#ffc107; letter-spacing:0.3px;
+}
+.price-negotiable::before { content:"💬"; font-size:0.85rem; }
 .service-badge {
   position:absolute; top:20px; right:20px;
   padding:4px 10px; border-radius:100px; font-size:0.6rem; font-weight:700; letter-spacing:1.5px; text-transform:uppercase;
@@ -955,7 +962,19 @@ footer {
             </div>
             <div class="f-full"><label class="f-label">Description *</label><textarea class="f-ta" id="f-desc" placeholder="Short description of what's included..."></textarea></div>
             <div class="f-row">
-              <div><label class="f-label">Starting Price (৳) *</label><input class="f-inp" id="f-price" type="number" placeholder="e.g. 150"></div>
+              <div>
+                <label class="f-label">Price Type *</label>
+                <select class="f-sel" id="f-price-type" onchange="togglePriceInput()">
+                  <option value="fixed">Fixed Price (৳)</option>
+                  <option value="per_page">Per Page (৳/page)</option>
+                  <option value="negotiable">আলোচনা সাপেক্ষে</option>
+                  <option value="custom">Custom Text</option>
+                </select>
+              </div>
+              <div id="price-val-wrap">
+                <label class="f-label" id="price-val-label">Amount (৳) *</label>
+                <input class="f-inp" id="f-price" placeholder="e.g. 150">
+              </div>
               <div><label class="f-label">Badge (optional)</label>
                 <select class="f-sel" id="f-badge">
                   <option value="">None</option>
@@ -1027,6 +1046,39 @@ footer {
 </div>
 
 <script>
+// ===== PRICE HELPERS =====
+function togglePriceInput() {
+  const type = document.getElementById('f-price-type').value;
+  const wrap = document.getElementById('price-val-wrap');
+  const label = document.getElementById('price-val-label');
+  const input = document.getElementById('f-price');
+
+  if(type === 'negotiable') {
+    wrap.style.display = 'none';
+    input.value = '';
+  } else {
+    wrap.style.display = 'block';
+    if(type === 'per_page') {
+      label.textContent = 'Amount per Page (৳) *';
+      input.placeholder = 'e.g. 20';
+    } else if(type === 'custom') {
+      label.textContent = 'Custom Price Text *';
+      input.placeholder = 'e.g. ৳50-200 (depends on pages)';
+    } else {
+      label.textContent = 'Amount (৳) *';
+      input.placeholder = 'e.g. 150';
+    }
+  }
+}
+
+function getPriceLabel(s) {
+  const pt = s.priceType || 'fixed';
+  if(pt === 'negotiable') return '💬 আলোচনা সাপেক্ষে';
+  if(pt === 'per_page') return `৳${s.priceValue}/page`;
+  if(pt === 'custom') return s.priceValue;
+  return `৳${s.priceValue || s.price}+`;
+}
+
 // ===== SECRET ADMIN ACCESS =====
 // Method 1: Click bottom-left corner 5 times fast
 // Method 2: Keyboard shortcut Ctrl+Shift+A
@@ -1130,12 +1182,12 @@ async function loadServices() {
 
 function loadFallbackServices() {
   const defaults = [
-    { id:'d1', name:'Assignment Writing', category:'Assignment', description:'Professionally formatted assignments with proper structure, headings, and references. Word & PDF formats.', price:150, icon:'📄', color:'g', badge:'popular' },
-    { id:'d2', name:'Notebook Formatting', category:'Notebook', description:'Clean, organized notebook layout with chapter divisions, diagrams, and neat handwriting-style formatting.', price:200, icon:'📓', color:'b', badge:'' },
-    { id:'d3', name:'PowerPoint Design', category:'Presentation', description:'Stunning slide decks with professional graphics, animations, and consistent design. Print-ready.', price:250, icon:'📊', color:'p', badge:'popular' },
-    { id:'d4', name:'Word Document', category:'Document', description:'Professional Word documents with proper typography, tables of contents, headers, and formatting.', price:120, icon:'📝', color:'v', badge:'' },
-    { id:'d5', name:'PDF Editing', category:'Document', description:'Edit, merge, split, or reformat any PDF file. Add watermarks, signatures, and more.', price:100, icon:'📑', color:'g', badge:'new' },
-    { id:'d6', name:'Illustrator Work', category:'Design', description:'Vector graphics, logos, diagrams, and technical illustrations using Adobe Illustrator.', price:300, icon:'🎨', color:'p', badge:'' },
+    { id:'d1', name:'Assignment Writing', category:'Assignment', description:'Professionally formatted assignments with proper structure, headings, and references. Word & PDF formats.', priceType:'per_page', priceValue:'20', price:'20', icon:'📄', color:'g', badge:'popular' },
+    { id:'d2', name:'Notebook Formatting', category:'Notebook', description:'Clean, organized notebook layout with chapter divisions, diagrams, and neat handwriting-style formatting.', priceType:'per_page', priceValue:'15', price:'15', icon:'📓', color:'b', badge:'' },
+    { id:'d3', name:'PowerPoint Design', category:'Presentation', description:'Stunning slide decks with professional graphics, animations, and consistent design. Print-ready.', priceType:'per_page', priceValue:'30', price:'30', icon:'📊', color:'p', badge:'popular' },
+    { id:'d4', name:'Word Document', category:'Document', description:'Professional Word documents with proper typography, tables of contents, headers, and formatting.', priceType:'per_page', priceValue:'20', price:'20', icon:'📝', color:'v', badge:'' },
+    { id:'d5', name:'PDF Editing', category:'Document', description:'Edit, merge, split, or reformat any PDF file. Add watermarks, signatures, and more.', priceType:'negotiable', priceValue:'', price:'আলোচনা সাপেক্ষে', icon:'📑', color:'g', badge:'new' },
+    { id:'d6', name:'Illustrator Work', category:'Design', description:'Vector graphics, logos, diagrams, and technical illustrations using Adobe Illustrator.', priceType:'negotiable', priceValue:'', price:'আলোচনা সাপেক্ষে', icon:'🎨', color:'p', badge:'' },
   ];
   renderServices(defaults);
   if(isLoggedIn) renderAdminServices(defaults);
@@ -1161,7 +1213,33 @@ function renderServices(svcs) {
     const c = colorMap[s.color || 'g'];
     const badge = s.badge === 'popular' ? '<span class="service-badge badge-pop">🔥 Popular</span>'
                 : s.badge === 'new' ? '<span class="service-badge badge-new">✨ New</span>' : '';
-    const waMsg = encodeURIComponent(`Hi! I want to book: ${s.name} service. Price: ৳${s.price}+`);
+    // ── flexible price display ──
+    let priceHtml = '';
+    let waPriceText = '';
+    const pt = s.priceType || 'fixed';
+    if(pt === 'negotiable') {
+      priceHtml = `<div class="price-negotiable">আলোচনা সাপেক্ষে</div>`;
+      waPriceText = 'Price: আলোচনা সাপেক্ষে';
+    } else if(pt === 'per_page') {
+      priceHtml = `<div class="service-price">
+        <span class="price-from">Per Page</span>
+        <span class="price-val ${c.label}">৳${s.priceValue}/page</span>
+      </div>`;
+      waPriceText = `Price: ৳${s.priceValue}/page`;
+    } else if(pt === 'custom') {
+      priceHtml = `<div class="service-price">
+        <span class="price-val ${c.label}" style="font-size:0.88rem;">${s.priceValue}</span>
+      </div>`;
+      waPriceText = `Price: ${s.priceValue}`;
+    } else {
+      // fixed
+      priceHtml = `<div class="service-price">
+        <span class="price-from">From</span>
+        <span class="price-val ${c.label}">৳${s.priceValue || s.price}</span>
+      </div>`;
+      waPriceText = `Price: ৳${s.priceValue || s.price}+`;
+    }
+    const waMsg = encodeURIComponent(`Hi! I want to book: ${s.name} service. ${waPriceText}`);
     const imgHtml = s.image
       ? `<div class="service-img-wrap"><img src="${s.image}" alt="${s.name}" loading="lazy"></div>`
       : `<div class="service-img-wrap"><span class="service-img-placeholder">${s.icon || '📄'}</span></div>`;
@@ -1171,10 +1249,7 @@ function renderServices(svcs) {
       <div class="service-icon ${s.color || 'g'}" style="display:none">${s.icon || '📄'}</div>
       <div class="service-name">${s.name}</div>
       <div class="service-desc">${s.description}</div>
-      <div class="service-price">
-        <span class="price-from">From</span>
-        <span class="price-val ${c.label}">৳${s.price}</span>
-      </div>
+      ${priceHtml}
       <a href="https://wa.me/${wa}?text=${waMsg}" target="_blank" class="service-book-btn">
         💬 Book This Service →
       </a>
@@ -1194,7 +1269,7 @@ function renderAdminServices(svcs) {
     <div class="svc-admin-row">
       <div class="svc-row-info">
         <div class="svc-row-name">${s.icon || ''} ${s.name}</div>
-        <div class="svc-row-price">৳${s.price}+ · ${s.category || ''} ${s.badge ? '· '+s.badge : ''}</div>
+        <div class="svc-row-price">${getPriceLabel(s)} · ${s.category || ''} ${s.badge ? '· '+s.badge : ''}</div>
       </div>
       <div class="svc-row-actions">
         <button class="edit-btn" onclick="editSvc('${s.id}')">✏️ Edit</button>
@@ -1209,6 +1284,8 @@ function showSvcForm() {
   document.getElementById('svc-form-title').textContent = 'Add New Service';
   document.getElementById('svc-edit-id').value = '';
   ['f-name','f-desc','f-price','f-icon'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-price-type').value = 'fixed';
+  togglePriceInput();
   document.getElementById('f-cat').value = 'Assignment';
   document.getElementById('f-badge').value = '';
   document.getElementById('f-color').value = 'g';
@@ -1238,11 +1315,13 @@ async function editSvc(id) {
         document.getElementById('svc-edit-id').value = id;
         document.getElementById('f-name').value = s.name || '';
         document.getElementById('f-desc').value = s.description || '';
-        document.getElementById('f-price').value = s.price || '';
+        document.getElementById('f-price-type').value = s.priceType || 'fixed';
+        document.getElementById('f-price').value = s.priceValue || s.price || '';
         document.getElementById('f-icon').value = s.icon || '';
         document.getElementById('f-cat').value = s.category || 'Assignment';
         document.getElementById('f-badge').value = s.badge || '';
         document.getElementById('f-color').value = s.color || 'g';
+        togglePriceInput();
         document.getElementById('svc-form').style.display = 'block';
         document.getElementById('svc-form').scrollIntoView({behavior:'smooth'});
       }
@@ -1253,11 +1332,17 @@ async function editSvc(id) {
 async function saveSvc() {
   const name = document.getElementById('f-name').value.trim();
   const desc = document.getElementById('f-desc').value.trim();
-  const price = parseInt(document.getElementById('f-price').value);
-  if(!name || !desc || !price) { toast('❗ Fill in name, description, and price!'); return; }
+  const priceType = document.getElementById('f-price-type').value;
+  const priceValue = document.getElementById('f-price').value.trim();
+
+  if(!name || !desc) { toast('❗ Name and description required!'); return; }
+  if(priceType !== 'negotiable' && !priceValue) { toast('❗ Please enter a price value!'); return; }
 
   const data = {
-    name, description: desc, price,
+    name, description: desc,
+    priceType,
+    priceValue: priceType !== 'negotiable' ? priceValue : '',
+    price: priceType !== 'negotiable' ? priceValue : 'আলোচনা সাপেক্ষে', // backward compat
     category: document.getElementById('f-cat').value,
     badge: document.getElementById('f-badge').value,
     icon: document.getElementById('f-icon').value || '📄',
